@@ -65,7 +65,7 @@ func main() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/uploadLog/", uploadLogHandler)
 	http.HandleFunc("/uploadZIP/", uploadZIPHandler)
-	http.Handle("/check/", http.StripPrefix("/check/", http.FileServer(http.Dir(*logPath))))
+	http.Handle("/clientLog/", http.StripPrefix("/clientLog/", http.FileServer(http.Dir(*logPath))))
 	http.Handle("/hotupdate/", http.StripPrefix("/hotupdate/", http.FileServer(http.Dir(*updateDir))))
 	log.Fatal(http.ListenAndServe(":"+*port, nil))
 }
@@ -108,9 +108,9 @@ func uploadZIPHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		os.RemoveAll(*updateDir+"/target")
+		os.RemoveAll(*updateDir + "/target")
 		unzip(*updateDir+"/"+filename, *updateDir+"/")
-		os.Rename(*updateDir+"/" +filename[:len(filename)-19], *updateDir+"/target")
+		os.Rename(*updateDir+"/"+filename[:len(filename)-19], *updateDir+"/target")
 		fmt.Fprintf(w, "upload success")
 	}
 }
