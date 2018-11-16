@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"time"
 )
@@ -108,9 +109,14 @@ func uploadZIPHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		os.RemoveAll(*updateDir + "/target")
-		unzip(*updateDir+"/"+filename, *updateDir+"/")
-		os.Rename(*updateDir+"/"+filename[:len(filename)-19], *updateDir+"/target")
+		cmd := fmt.Sprintf("unzip -oq %v/%v -d %v", *updateDir, filename, *updateDir)
+		go func() {
+			exeSysCommand(cmd)
+		}()
+
+		//os.RemoveAll(*updateDir+"/target")
+		//unzip(*updateDir+"/"+filename, *updateDir+"/")
+		//os.Rename(*updateDir+"/" +filename[:len(filename)-19], *updateDir+"/target")
 		fmt.Fprintf(w, "upload success")
 	}
 }
@@ -161,4 +167,14 @@ func unzip(zipfile, dest string) error {
 		}
 	}
 	return nil
+}
+
+func exeSysCommand(cmdStr string) string {
+	cmd := exec.Command("sh", "-c", cmdStr)
+	opBytes, err := cmd.Output()
+	if err != nil {
+		fmt.Println(err)
+		return ""
+	}
+	return string(opBytes)
 }
