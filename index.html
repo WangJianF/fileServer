@@ -6,7 +6,13 @@
 </head>
 <body>
     <a href="/clientLog">查看日志文件</a></p>
+    <p>upload hotUpdate</p>
     <form enctype="multipart/form-data" action="/uploadZIP/" method="post">
+        <input type="file" name="uploadfile" />
+        <input type="submit" value="submit" />
+    </form>
+    <p>upload WebMobile</p>
+    <form enctype="multipart/form-data" action="/uploadWebMobile/" method="post">
         <input type="file" name="uploadfile" />
         <input type="submit" value="submit" />
     </form>

@@ -66,6 +66,7 @@ func main() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/uploadLog/", uploadLogHandler)
 	http.HandleFunc("/uploadZIP/", uploadZIPHandler)
+	http.HandleFunc("/uploadWebMobile/", uploadWebMobile)
 	http.Handle("/clientLog/", http.StripPrefix("/clientLog/", http.FileServer(http.Dir(*logPath))))
 	http.Handle("/hotupdate/", http.StripPrefix("/hotupdate/", http.FileServer(http.Dir(*updateDir))))
 	log.Fatal(http.ListenAndServe(":"+*port, nil))
@@ -113,10 +114,32 @@ func uploadZIPHandler(w http.ResponseWriter, r *http.Request) {
 		go func() {
 			exeSysCommand(cmd)
 		}()
+		fmt.Fprintf(w, "upload success")
+	}
+}
 
-		//os.RemoveAll(*updateDir+"/target")
-		//unzip(*updateDir+"/"+filename, *updateDir+"/")
-		//os.Rename(*updateDir+"/" +filename[:len(filename)-19], *updateDir+"/target")
+func uploadWebMobile(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		fmt.Println("uploadWebMobile GET")
+	} else {
+		r.ParseMultipartForm(32 << 20)
+		file, handler, err := r.FormFile("uploadfile")
+		if err != nil {
+			fmt.Fprintf(w, "upload error %v", err)
+			return
+		}
+		defer file.Close()
+		filename := handler.Filename
+		f, _ := os.OpenFile(*logPath+"/"+filename, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+		_, err = io.Copy(f, file)
+		if err != nil {
+			fmt.Fprintf(w, "copy error %v", err)
+			return
+		}
+		cmd := fmt.Sprintf("unzip -oq %v/%v -d %v", *logPath, filename, *logPath)
+		go func() {
+			exeSysCommand(cmd)
+		}()
 		fmt.Fprintf(w, "upload success")
 	}
 }
