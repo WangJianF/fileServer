@@ -137,8 +137,12 @@ func uploadWebMobile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		cmd := fmt.Sprintf("unzip -oq %v/%v -d %v", *logPath, filename, *logPath)
+		fmt.Println(cmd)
 		go func() {
 			exeSysCommand(cmd)
+			newCmd := fmt.Sprintf("unzip -oq %v/web-mobile.zip -d %v", *logPath, *logPath)
+			fmt.Println(newCmd)
+			exeSysCommand(newCmd)
 		}()
 		fmt.Fprintf(w, "upload success")
 	}
